@@ -3,6 +3,29 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
+app.use(express.urlencoded({extended: true}));
+
+//generates a random string to act as key in URL database
+function generateRandomString() {
+    //define the alpha-numeric chars that are allowed
+    const ALPHA_NUMS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const ID_MAX_LENGTH = 8; //Max length the ID can be
+
+    //variables for managing while loop
+    let idString = '';
+
+    //As long as the idString is less than the max length and doesn't randomly end, keep adding a random char to id
+    while(idString.length < ID_MAX_LENGTH){
+        const newChar = ALPHA_NUMS[Math.floor(Math.random() * ALPHA_NUMS.length)];
+        idString += newChar;
+        
+        //random chance to kill the while loop
+        if(Math.random() < 0.25 && idString.length > 3) {
+            break;
+        }   
+    }
+}
+
 
 const urlDatabase = {
     b2xVn2: "http://www.lighthouselabs.ca",
@@ -24,6 +47,15 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
     const templateVars = {urls: urlDatabase};
     res.render("urls_index", templateVars);
+});
+
+app.post('/urls', (req, res) => {
+    console.log(req.body);
+    res.send("Ok");
+})
+
+app.get('/urls/new', (req, res) => {
+    res.render('urls_new');
 });
 
 app.get("/urls/:id", (req, res) => {
