@@ -24,6 +24,8 @@ function generateRandomString() {
             break;
         }   
     }
+
+    return idString;
 }
 
 
@@ -51,7 +53,20 @@ app.get("/urls", (req, res) => {
 
 app.post('/urls', (req, res) => {
     console.log(req.body);
-    res.send("Ok");
+    const newID = generateRandomString()
+    urlDatabase[newID] = req.body.longURL;
+    console.log(urlDatabase);
+    
+    res.redirect(`/urls/${newID}`);
+})
+
+app.get('/u/:id', (req, res) => {
+    if(Object.keys(urlDatabase).includes(req.params.id)){ 
+        res.redirect(urlDatabase[req.params.id]);
+    }
+    else {
+        res.send('<h1>404 Page Not Found. Bad Link</h1>')
+    }
 })
 
 app.get('/urls/new', (req, res) => {
