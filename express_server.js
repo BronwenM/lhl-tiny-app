@@ -9,7 +9,7 @@ app.use(express.urlencoded({extended: true}));
 function generateRandomString() {
     //define the alpha-numeric chars that are allowed
     const ALPHA_NUMS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const ID_MAX_LENGTH = 8; //Max length the ID can be
+    const ID_MAX_LENGTH = 10; //Max length the ID can be
 
     //variables for managing while loop
     let idString = '';
@@ -19,8 +19,8 @@ function generateRandomString() {
         const newChar = ALPHA_NUMS[Math.floor(Math.random() * ALPHA_NUMS.length)];
         idString += newChar;
         
-        //random chance to kill the while loop
-        if(Math.random() < 0.25 && idString.length > 3) {
+        //random chance to kill the while loop. Allows for random length for links between 5 & 10 chars
+        if(Math.random() < 0.25 && idString.length > 4) {
             break;
         }   
     }
@@ -57,7 +57,10 @@ app.post('/urls', (req, res) => {
     if(!urlDatabase[newID]){
         urlDatabase[newID] = req.body.longURL;
     }
-    // console.log(urlDatabase);
+    else {
+        alert("This link has already been shortened!");
+    }
+    console.log(urlDatabase);
     
     res.redirect(`/urls/${newID}`);
 })
@@ -79,6 +82,16 @@ app.get("/urls/:id", (req, res) => {
     const templateVars = {id: req.params.id, longURL: urlDatabase[req.params.id]};
     res.render("urls_show", templateVars);
 });
+
+app.post('/urls/:id/delete', (req, res) => {
+    const linkID = req.params.id;
+    console.log(linkID);
+
+    delete urlDatabase[linkID];
+    console.log(urlDatabase);
+
+    res.redirect('/urls');
+})
 
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`);
