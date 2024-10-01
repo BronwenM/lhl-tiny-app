@@ -52,16 +52,18 @@ app.get("/urls", (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-    console.log(req.body);
-    const newID = generateRandomString()
-    urlDatabase[newID] = req.body.longURL;
-    console.log(urlDatabase);
+
+    const newID = generateRandomString();
+    if(!urlDatabase[newID]){
+        urlDatabase[newID] = req.body.longURL;
+    }
+    // console.log(urlDatabase);
     
     res.redirect(`/urls/${newID}`);
 })
 
 app.get('/u/:id', (req, res) => {
-    if(Object.keys(urlDatabase).includes(req.params.id)){ 
+    if(Object.hasOwnProperty(req.params.id)){ 
         res.redirect(urlDatabase[req.params.id]);
     }
     else {
