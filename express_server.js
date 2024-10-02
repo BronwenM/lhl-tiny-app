@@ -81,12 +81,13 @@ app.get('/u/:id', (req, res) => {
 
 //access the 'create urls' page
 app.get('/urls/new', (req, res) => {
-    res.render('urls_new');
+    const templateVars = {username: req.cookies["username"]}
+    res.render('urls_new', templateVars);
 });
 
 //Get individual URLs by ID, this is not the same as accessing a short link, which redirects to the appropriate site
 app.get("/urls/:id", (req, res) => {
-    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["username"] };
     res.render("urls_show", templateVars);
 });
 
@@ -130,6 +131,17 @@ app.post('/login', (req, res) => {
         console.warn("no username entered");
     }
 });
+
+//LOGOUT OPERATION
+app.post('/logout', (req, res) => {
+    if(req.cookies["username"]) {
+        console.log("logged out", req.cookies['username']);
+        res.clearCookie("username");
+        res.redirect('/urls');
+    } else {
+        console.log("Can't log out, we're not logged in!");
+    }
+})
 
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`);
