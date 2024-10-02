@@ -19,8 +19,17 @@
         </div>
       </div>
       <form method="POST" action="/login" class="form-inline">
-        <input type="text" class="form-control" name="username" placeholder="Username">
-        <button type="submit" class="btn btn-light ml-3">Log In</button>
+        <% if(username) { %>
+          <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <%= username %> </button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <button class="dropdown-item" type="button">Log out</button>
+            </div>
+          </div>
+          <% } else { %>
+            <input type="text" class="form-control" name="username" placeholder="Username">
+            <button type="submit" class="btn btn-light ml-3">Log In</button>
+          <% } %>
       </form>
     </nav>
   </header>
