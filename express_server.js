@@ -31,14 +31,10 @@ const generateRandomString = () => {
     return idString;
 }
 
-const getUserByID = (userID) => {
-    return users[userID];
-}
-
 const getUserByEmail = (userEmail) => {
-    for(const ids in users){
-        if(ids.email === userEmail){
-            return users[ids];
+    for (const userIDs in users) {
+        if (users[userIDs].email === userEmail) {
+            return users[userIDs];
         }
     }
 }
@@ -183,11 +179,9 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     // const username = req.body.username;
 
-    for (userIDs in users) { //make sure the email isn't in use
-        if (Object.values(users[userIDs]).includes(email)) {
-            console.warn("An account with this email already exists");
-            return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `The email ${email} is already associated with an account` });
-        } //use an else if here for a username
+    if (getUserByEmail(email)) {
+        console.warn("An account with this email already exists");
+        return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `The email ${email} is already associated with an account` });
     }
 
     if (!users[userID]) { //make sure the userID isn't already in use and we have an email and password
