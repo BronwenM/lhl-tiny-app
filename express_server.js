@@ -1,69 +1,13 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
-const e = require("express");
+const bcrypt = require('bcryptjs');
+const {generateRandomString, getUserByEmail, getUserURLs} = require('./utils/index');
 const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-//generates a random string to act as key in URL database
-//this could be done with math.random and a different base encode, but this allows for both upper and lower case letters to be used, as well as the option to use symbols, if added to the ALPHA_NUMS string
-const generateRandomString = () => {
-    //define the alpha-numeric chars that are allowed
-    const ALPHA_NUMS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const ID_MAX_LENGTH = 10; //Max length the ID can be
-
-    //variables for managing while loop
-    let idString = '';
-
-    //As long as the idString is less than the max length and doesn't randomly end, keep adding a random char to id
-    while (idString.length < ID_MAX_LENGTH) {
-        const newChar = ALPHA_NUMS[Math.floor(Math.random() * ALPHA_NUMS.length)];
-        idString += newChar;
-
-        //random chance to kill the while loop. Allows for random length for links between 5 & 10 chars
-        if (Math.random() < 0.25 && idString.length > 4) {
-            break;
-        }
-    }
-
-    return idString;
-}
-
-const getUserByEmail = (userEmail) => {
-    for (const userIDs in users) {
-        if (users[userIDs].email === userEmail) {
-            return users[userIDs];
-        }
-    }
-}
-
-const getUserURLs = (uid) => {
-    if(!uid) {
-        return {};
-    }
-    const userURLs = {};
-    for(urlID in urlDatabase){
-        if(urlDatabase[urlID].userID === uid){
-            userURLs[urlID] = urlDatabase[urlID].longURL;
-        }
-    }
-
-    return userURLs;
-}
-
-/* const checkEmptyEmailPassword = (email, password) => {
-    if (!password && !email) {
-        return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email and password cannot be empty` });
-    } else if (!email || !password) {
-        if (!password) {
-            return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Password cannot be empty` });
-        }
-        return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email cannot be empty` });
-    }
-} */
 
 const urlDatabase = {
     b2xVn2: {
@@ -101,7 +45,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-    const userURLs = getUserURLs(req.cookies["user_id"]);
+    const userURLs = getUserURLs(urlDatabase, req.cookies["user_id"]);
     const templateVars = {
         urls: userURLs,
         user: users[req.cookies["user_id"]] || ''
@@ -153,11 +97,7 @@ app.get("/urls/:id", (req, res) => {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to edit url links' })
     }
 
-    const userURLs = getUserURLs(req.cookies["user_id"]);
-
-    if(!req.params.id) {
-        return res.status(404).render('urls', { user: users[req.cookies["user_id"]] || ''})
-    }
+    const userURLs = getUserURLs(urlDatabase, req.cookies["user_id"]);
 
     const templateVars = { id: req.params.id, longURL: userURLs[req.params.id], user: users[req.cookies["user_id"]] || '' };
     res.render("urls_show", templateVars);
@@ -168,7 +108,7 @@ app.post('/urls/:id/delete', (req, res) => {
     if(!req.cookies["user_id"]) {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to delete url links' })
     }
-    const userURLs = getUserURLs(req.cookies["user_id"]);
+    const userURLs = getUserURLs(urlDatabase, req.cookies["user_id"]);
     const linkID = req.params.id;
 
     if(Object.hasOwn(userURLs, linkID)) {
@@ -192,7 +132,7 @@ app.post('/urls/:id/update', (req, res) => {
 
     if (!req.body.newURL) {
         console.warn("No link was entered! Try again");
-        res.redirect(`/urls/${linkID}`);
+        res.redirect(`/urls/${linkID}`); //TODO: Re-rout this to an error page/more cases to erroring
     } else {
         urlDatabase[linkID] = {
             longURL: newLink,
@@ -214,7 +154,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
     const inputEmail = req.body.email;
     const inputPassword = req.body.password;
-    const user = getUserByEmail(inputEmail);
+    const user = getUserByEmail(users, inputEmail);
 
     if (!inputPassword && !inputEmail) {
         return res.status(400).render('login', { user: '', email: inputEmail, errorMsg: `Email and password cannot be empty` });
@@ -259,7 +199,7 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     // const username = req.body.username;
 
-    if (getUserByEmail(email)) {
+    if (getUserByEmail(users, email)) {
         console.warn("An account with this email already exists");
         return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `The email ${email} is already associated with an account` });
     }
