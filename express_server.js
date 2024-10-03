@@ -1,20 +1,24 @@
+//Set up necessary requirements
 const express = require("express");
-// const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
-const salt = bcrypt.genSaltSync(10);
-const {generateRandomString, getUserByEmail, getUserURLs} = require('./utils/index');
+const dotenv = require('dotenv');
+dotenv.config();
 
+//imports from local files
+const {generateRandomString, getUserByEmail, getUserURLs} = require('./utils/index');
+const SESSION_KEY = process.env.SESSION_KEY;
+const PORT = process.env.PORT;
 
 const app = express();
-const PORT = 8080; // default port 8080
+const salt = bcrypt.genSaltSync(10);
 
+//App setup
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
 app.use(cookieSession({
     name: 'session',
-    keys: ['asldgkhawens'],
+    keys: [SESSION_KEY],
   
     // Cookie Options
     maxAge: 24 * 60 * 60 * 1000 // 24 hours

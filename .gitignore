@@ -1,2 +1,7 @@
 #Ignore node modules folder
 node_modules/
+
+#Ignore .env files
+.env
+.env.local
+.env.staging
