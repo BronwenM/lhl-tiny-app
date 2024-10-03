@@ -31,6 +31,18 @@ const generateRandomString = () => {
     return idString;
 }
 
+const getUserByID = (userID) => {
+    return users[userID];
+}
+
+const getUserByEmail = (userEmail) => {
+    for(const ids in users){
+        if(ids.email === userEmail){
+            return users[ids];
+        }
+    }
+}
+
 const urlDatabase = {
     b2xVn2: "http://www.lighthouselabs.ca",
     "9sm5xK": "http://www.google.com",
@@ -148,9 +160,9 @@ app.post('/login', (req, res) => {
 
 //LOGOUT OPERATION
 app.post('/logout', (req, res) => {
-    if (req.cookies["username"]) {
-        console.log("logged out", req.cookies['username']);
-        res.clearCookie("username");
+    if (req.cookies["user_id"]) {
+        console.log("logged out", req.cookies['user_id']);
+        res.clearCookie("user_id");
         res.redirect('/register');
     } else {
         console.log("Can't log out, we're not logged in!");
@@ -174,19 +186,19 @@ app.post('/register', (req, res) => {
     for (userIDs in users) { //make sure the email isn't in use
         if (Object.values(users[userIDs]).includes(email)) {
             console.warn("An account with this email already exists");
-            return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `The email ${email} is already associated with an account` });
+            return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `The email ${email} is already associated with an account` });
         } //use an else if here for a username
     }
 
     if (!users[userID]) { //make sure the userID isn't already in use and we have an email and password
         //if password or email fields are empty. WOO!
         if (!password && !email) {
-            return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email and password cannot be empty` });
+            return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email and password cannot be empty` });
         } else if (!email || !password) {
             if (!password) {
-                return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Password cannot be empty` });
+                return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Password cannot be empty` });
             }
-            return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email cannot be empty` });
+            return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email cannot be empty` });
         }
 
         //create a new user
