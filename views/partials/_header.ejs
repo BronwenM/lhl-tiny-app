@@ -18,9 +18,9 @@
           <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         </div>
       </div>
-      <% if(username) { %>
+      <% if(user) { %>
         <div class="dropdown">
-          <button class="btn btn-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <%= username %> </button>
+          <button class="btn btn-light dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <%= user.email %> </button>
           <div class="dropdown-menu dropdown-menu-right">
             <button class="btn disabled dropdown-item" type="button">My Links</button>
             <form method="POST" action='/logout'>
@@ -30,7 +30,7 @@
         </div>
         <% } else { %>
           <form method="POST" action="/login" class="form-inline">
-            <input type="text" class="form-control" name="username" placeholder="Username">
+            <!--<input type="text" class="form-control" name="username" placeholder="Username">-->
             <button type="submit" class="btn btn-light ml-3">Log In</button>
           </form>
           <% } %>

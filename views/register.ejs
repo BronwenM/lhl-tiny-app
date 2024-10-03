@@ -19,31 +19,74 @@
   <body>
     <%- include('partials/_header') %>
     <main>
-        <div style="max-width: 600px; margin: 0 auto; padding: 5rem 1rem 0;">
-            <h1 class="text-center mb-5">Register A New Account</h1>
-            <form method="POST" action="/register" class="form-group">
-                <div class="mb-3">
-                    <label for="username">Create A Username</label>
-                    <input type="text" placeholder="New Username" name="username" class="form-control">
-                    <small class="form-text text-muted">Try and create something memorable!</small>
-                </div>
-                <div class="mb-3">
-                    <label for="username">Enter Your Email</label>
-                    <input type="email" placeholder="example@example.com" name="userEmail" class="form-control">
-                    <small class="form-text text-muted">We'll never send you any spam, we promise.</small>
-                </div>
-                <div class="mb-3">
-                    <label for="username">Enter A Password</label>
-                    <input type="password" placeholder="password" name="pass1" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="username">Re-Enter The Same Password</label>
-                    <input type="password" placeholder="password" name="pass2" class="form-control">
-                    <small class="form-text text-muted">Make sure they match</small>
-                </div>
-                <button type="submit" class="btn btn-primary mt-3">Register</button>
-            </form>
-        </div>
+      <div style="max-width: 600px; margin: 0 auto; padding: 5rem 1rem 0">
+        <h1 class="text-center mb-5">Register A New Account</h1>
+        <form method="POST" action="/register" class="form-group">
+            <% if(errorMsg) { %>
+            <div name="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= errorMsg %>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <% } %>
+            <!--
+            <div class="mb-3">
+                <label for="username">Create A Username</label>
+                <input type="text" placeholder="New Username" name="username" class="form-control">
+                <small class="form-text text-muted">Try and create something memorable!</small>
+            </div>
+            -->
+          <div class="mb-3">
+            <label for="username">Enter Your Email</label>
+            <input
+              type="email"
+              placeholder="example@example.com"
+              name="email"
+              class="form-control <% if(errorMsg.toLowerCase().includes('email')) { %> border border-danger <% } %>"
+              value="<% if(email) {%> <%= email %> <% } %>"
+            />
+            <small class="form-text text-muted"
+              >We'll never send you any spam, we promise.</small
+            >
+          </div>
+          <div class="mb-3">
+            <label for="username">Enter A Password</label>
+            <input
+              type="password"
+              placeholder="password"
+              name="password"
+              class="form-control <% if(errorMsg.toLowerCase().includes('password')) { %> border border-danger <% } %>"
+            />
+            <small class="form-text text-muted">
+              Make sure your password is secure:
+              <ul>
+                <li>Use at a minimum of 8 characters (14 or more is better).</li>
+                <li>Use a combination of uppercase letters, lowercase letters, numbers, and symbols.</li>
+                <li>Don't repeat previous passwords from other sites.</li>
+                <li>Make sure it's easy for you to remember but difficult for others to guess</li>
+              </ul>
+            </small>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Register</button>
+        </form>
+      </div>
     </main>
+    <!--BOOTSTRAP JS-->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>

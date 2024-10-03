@@ -36,6 +36,21 @@ const urlDatabase = {
     "9sm5xK": "http://www.google.com",
 };
 
+const users = {
+    userRandomID: {
+        id: "userRandomID",
+        email: "user@example.com",
+        password: "purple-monkey-dinosaur",
+    },
+    user2RandomID: {
+        id: "user2RandomID",
+        email: "user2@example.com",
+        password: "dishwasher-funk",
+    },
+};
+
+//SERVER ACTIONS (GET, POST)
+
 app.get("/", (req, res) => {
     res.redirect("/urls");
 });
@@ -51,7 +66,7 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
     const templateVars = {
         urls: urlDatabase,
-        username: req.cookies["username"]
+        user: users[req.cookies["user_id"]] || ''
     };
     res.render("urls_index", templateVars);
 });
@@ -81,20 +96,20 @@ app.get('/u/:id', (req, res) => {
 
 //access the 'create urls' page
 app.get('/urls/new', (req, res) => {
-    const templateVars = {username: req.cookies["username"]}
+    const templateVars = { user: users[req.cookies["user_id"]] || '' }
     res.render('urls_new', templateVars);
 });
 
 //Get individual URLs by ID, this is not the same as accessing a short link, which redirects to the appropriate site
 app.get("/urls/:id", (req, res) => {
-    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["username"] };
+    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies["user_id"]] || '' };
     res.render("urls_show", templateVars);
 });
 
 //DELETE OPERATION
 app.post('/urls/:id/delete', (req, res) => {
     const linkID = req.params.id;
-    console.log(linkID);
+    // console.log(linkID);
 
     delete urlDatabase[linkID];
     console.log(urlDatabase);
@@ -107,7 +122,7 @@ app.post('/urls/:id/update', (req, res) => {
     const newLink = req.body.newURL;
     const linkID = req.params.id;
 
-    console.log(req.params, req.body);
+    // console.log(req.params, req.body);
 
     if (!req.body.newURL) {
         console.warn("No link was entered! Try again");
@@ -133,20 +148,73 @@ app.post('/login', (req, res) => {
 
 //LOGOUT OPERATION
 app.post('/logout', (req, res) => {
-    if(req.cookies["username"]) {
+    if (req.cookies["username"]) {
         console.log("logged out", req.cookies['username']);
         res.clearCookie("username");
-        res.redirect('/urls');
+        res.redirect('/register');
     } else {
         console.log("Can't log out, we're not logged in!");
     }
-})
+});
 
-//REGISTER
+//REGISTER OPERATION
 app.get('/register', (req, res) => {
-    const templateVars = {username: req.cookies["username"]}
+    //TODO: Allows users to create a new account while still logged in. Fix this so it can only work/be accessed when logged out
+    const templateVars = { user: users[req.cookies["user_id"]] || '', email: '', errorMsg: '' }
     res.render('register', templateVars);
-})
+});
+
+//create a new user and add it to the user object
+app.post('/register', (req, res) => {
+    let userID = generateRandomString();
+    const email = req.body.email;
+    const password = req.body.password;
+    // const username = req.body.username;
+
+    for (userIDs in users) { //make sure the email isn't in use
+        if (Object.values(users[userIDs]).includes(email)) {
+            console.warn("An account with this email already exists");
+            return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `The email ${email} is already associated with an account` });
+        } //use an else if here for a username
+    }
+
+    if (!users[userID]) { //make sure the userID isn't already in use and we have an email and password
+        //if password or email fields are empty. WOO!
+        if (!password && !email) {
+            return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email and password cannot be empty` });
+        } else if (!email || !password) {
+            if (!password) {
+                return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Password cannot be empty` });
+            }
+            return res.render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email cannot be empty` });
+        }
+
+        //create a new user
+        const newUser = {
+            id: userID,
+            email,
+            password
+        };
+        users[userID] = newUser;
+
+        console.log(users);
+
+        //log them in and set the cookie to username
+        if (users[userID].id) {
+            res.cookie("user_id", users[userID].id);
+            res.redirect("/urls");
+        }
+        else {
+            console.warn("failed to add the cookie for a new user");
+        }
+    }
+
+    if (users[userID]) { //generate a new id and try again
+        userID = generateRandomString();
+    }
+
+
+});
 
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`);
