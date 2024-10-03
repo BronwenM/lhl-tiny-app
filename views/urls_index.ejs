@@ -14,6 +14,14 @@
       integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
       crossorigin="anonymous"
     />
+    <script>
+      function copyToClipboard(textToCopy) {
+        //if this was hosted, i'd use the id to copy the actual short link to the clipboard
+        navigator.clipboard.writeText(textToCopy);
+
+        alert("Copied " + textToCopy + " to clipboard");
+      }
+    </script>
     <title>TinyApp</title>
   </head>
   <body>
@@ -28,6 +36,7 @@
             <th scope="col"></th>
             <th scope="col"></th>
             <th scope="col"></th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
@@ -36,12 +45,15 @@
               <td>
                   <%= id %>
               </td>
-              <td>
+              <td id="long-url">
                   <%= urls[id] %>
               </td>
               <td>
+                <button type="button" class="btn btn-outline-success btn-block" onclick="copyToClipboard('<%= urls[id] %>')">Copy Link</button>     
+              </td>
+              <td>
                 <form method="GET" action="/u/<%= id %>">
-                  <button type="submit" class="btn btn-outline-success btn-block">Visit Site</button>
+                  <button type="submit" class="btn btn-outline-primary btn-block">Visit Site</button>
                 </form>              
               </td>
               <td>
