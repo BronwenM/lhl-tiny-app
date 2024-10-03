@@ -1,7 +1,10 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
+const salt = bcrypt.genSaltSync(10);
 const {generateRandomString, getUserByEmail, getUserURLs} = require('./utils/index');
+
+
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -34,7 +37,7 @@ const users = {
     'sillyBillyTester': {
         id: 'sillyBillyTester',
         email: 'test@tester.com',
-        password: 'asdf'
+        password: '$2a$10$SoJQKJNG3ncOEqiKmhwG8O9QXQxv60GpI3EgDv0XMNw9kNo5mq1KW'
     }
 };
 
@@ -147,7 +150,7 @@ app.post('/urls/:id/update', (req, res) => {
 
 //LOGIN OPERATION
 app.get('/login', (req, res) => {
-    res.render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: '' })
+    res.render('login', { user: users[req.cookies["user_id"]] || '', email: '', errorMsg: '' })
 })
 
 
@@ -166,14 +169,15 @@ app.post('/login', (req, res) => {
     }
 
     if (user) { //email has to be present therefore correct
-        if (user.password === inputPassword) {
+        // if (user.password === inputPassword) {
+        if(bcrypt.compareSync(inputPassword, user.password)) {
             res.cookie("user_id", user.id);
             res.redirect('/urls');
         } else { //password is incorrect
-            return res.status(403).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: 'Password is incorrect' })
+            return res.status(403).render('login', { user: users[req.cookies["user_id"]] || '', email: inputEmail, errorMsg: 'Password is incorrect' })
         }
     } else { //user has no email associated
-        return res.status(403).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: `The email ${inputEmail} has no account attached` })
+        return res.status(403).render('login', { user: users[req.cookies["user_id"]] || '', email: inputEmail, errorMsg: `The email ${inputEmail} has no account attached` })
     }
 });
 
@@ -186,9 +190,13 @@ app.post('/logout', (req, res) => {
 
 //REGISTER OPERATION
 app.get('/register', (req, res) => {
-    //TODO: Allows users to create a new account while still logged in. Fix this so it can only work/be accessed when logged out
-    const templateVars = { user: users[req.cookies["user_id"]] || '', email: '', errorMsg: '' }
-    res.render('register', templateVars);
+    //DONE: Allows users to create a new account while still logged in. Fix this so it can only work/be accessed when logged out
+    if(!req.cookies["user_id"]){
+        const templateVars = { user: users[req.cookies["user_id"]] || '', email: '', errorMsg: '' }
+        res.render('register', templateVars);
+    } else {
+        res.redirect('/urls'); //This could redirect to a profile page to change password or something
+    }
 });
 
 //create a new user and add it to the user object
@@ -219,7 +227,8 @@ app.post('/register', (req, res) => {
         const newUser = {
             id: userID,
             email,
-            password
+            // password
+            password: bcrypt.hashSync(password, salt)
         };
         users[userID] = newUser;
 

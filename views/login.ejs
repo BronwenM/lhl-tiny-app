@@ -37,6 +37,7 @@
                   placeholder="example@example.com"
                   name="email"
                   class="form-control <% if(errorMsg.toLowerCase().includes('email')) { %> border border-danger <% } %>"
+                  value="<% if(email) {%> <%= email %> <% } %>"
                 />
               </div>
               <div class="mb-3">
