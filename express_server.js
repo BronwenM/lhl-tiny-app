@@ -40,6 +40,20 @@ const getUserByEmail = (userEmail) => {
     }
 }
 
+const getUserURLs = (uid) => {
+    if(!uid) {
+        return {};
+    }
+    const userURLs = {};
+    for(urlID in urlDatabase){
+        if(urlDatabase[urlID].userID === uid){
+            userURLs[urlID] = urlDatabase[urlID].longURL;
+        }
+    }
+
+    return userURLs;
+}
+
 /* const checkEmptyEmailPassword = (email, password) => {
     if (!password && !email) {
         return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email and password cannot be empty` });
@@ -52,8 +66,14 @@ const getUserByEmail = (userEmail) => {
 } */
 
 const urlDatabase = {
-    b2xVn2: "http://www.lighthouselabs.ca",
-    "9sm5xK": "http://www.google.com",
+    b2xVn2: {
+        longURL: "http://www.lighthouselabs.ca",
+        userID: 'sillyBillyTester'
+    },
+    "9sm5xK": {
+        longURL: "http://www.google.com",
+        userID: 'sillyBillyTester'
+    },
 };
 
 const users = {
@@ -80,17 +100,10 @@ app.get("/", (req, res) => {
     res.redirect("/urls");
 });
 
-// app.get("/urls.json", (req, res) => {
-//     res.json(urlDatabase);
-// });
-
-app.get("/hello", (req, res) => {
-    res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 app.get("/urls", (req, res) => {
+    const userURLs = getUserURLs(req.cookies["user_id"]);
     const templateVars = {
-        urls: urlDatabase,
+        urls: userURLs,
         user: users[req.cookies["user_id"]] || ''
     };
     res.render("urls_index", templateVars);
@@ -101,15 +114,17 @@ app.post('/urls', (req, res) => {
     if(req.cookies["user_id"]){
         const newID = generateRandomString();
         if (!urlDatabase[newID]) {
-            urlDatabase[newID] = req.body.longURL;
+            urlDatabase[newID] = {
+                longURL: req.body.longURL,
+                userID: req.cookies["user_id"]
+            };
         } else {
             console.warn("This link has already been shortened!");
         }
-        console.log(urlDatabase);
         
         res.redirect(`/urls/${newID}`);
     } else {
-        return res.send("<html><body><p>Only Authorized users can create new short links</p></body></html>\n")
+        return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to create new short links' })
     }
 });
 
@@ -128,39 +143,61 @@ app.get('/urls/new', (req, res) => {
         const templateVars = { user: users[req.cookies["user_id"]] || '' }
         res.render('urls_new', templateVars);
     } else {
-        res.redirect('/login');
+        return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to create new short links' })
     }
 });
 
 //Get individual URLs by ID, this is not the same as accessing a short link, which redirects to the appropriate site
 app.get("/urls/:id", (req, res) => {
-    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies["user_id"]] || '' };
+    if(!req.cookies["user_id"]) {
+        return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to edit url links' })
+    }
+
+    const userURLs = getUserURLs(req.cookies["user_id"]);
+
+    if(!req.params.id) {
+        return res.status(404).render('urls', { user: users[req.cookies["user_id"]] || ''})
+    }
+
+    const templateVars = { id: req.params.id, longURL: userURLs[req.params.id], user: users[req.cookies["user_id"]] || '' };
     res.render("urls_show", templateVars);
 });
 
 //DELETE OPERATION
 app.post('/urls/:id/delete', (req, res) => {
+    if(!req.cookies["user_id"]) {
+        return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to delete url links' })
+    }
+    const userURLs = getUserURLs(req.cookies["user_id"]);
     const linkID = req.params.id;
-    // console.log(linkID);
 
-    delete urlDatabase[linkID];
-    console.log(urlDatabase);
-
-    res.redirect('/urls');
+    if(Object.hasOwn(userURLs, linkID)) {
+        delete urlDatabase[linkID];
+        console.log(urlDatabase);
+    
+        res.redirect('/urls');
+    } else {
+        console.warn("you don't have access to that object");
+    }
 });
 
 //UPDATE OPERATION
 app.post('/urls/:id/update', (req, res) => {
-    const newLink = req.body.newURL;
-    const linkID = req.params.id;
+    if(!req.cookies["user_id"]) {
+        return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to delete url links' })
+    }
 
-    // console.log(req.params, req.body);
+    const linkID = req.params.id;
+    const newLink = req.body.newURL;
 
     if (!req.body.newURL) {
         console.warn("No link was entered! Try again");
         res.redirect(`/urls/${linkID}`);
     } else {
-        urlDatabase[linkID] = newLink;
+        urlDatabase[linkID] = {
+            longURL: newLink,
+            userID: req.cookies["user_id"]
+        };
 
         console.log(urlDatabase);
 
