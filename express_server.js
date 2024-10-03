@@ -92,7 +92,7 @@ app.get('/u/:id', (req, res) => {
     if (urlDatabase.hasOwnProperty(req.params.id)) {
         res.redirect(urlDatabase[req.params.id].longURL);
     } else {
-        res.status(404).send('<h1>404 Page Not Found. Bad Link</h1>');
+        res.status(404).send('<h1>404 Page Not Found. Bad Link</h1><p>Go <a href="/urls">back</a><p>');
     }
 });
 
