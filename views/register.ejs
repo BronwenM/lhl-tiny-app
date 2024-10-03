@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+    <title>TinyApp - Register</title>
+  </head>
+  <body>
+    <%- include('partials/_header') %>
+    <main>
+        <div style="max-width: 600px; margin: 0 auto; padding: 5rem 1rem 0;">
+            <h1 class="text-center mb-5">Register A New Account</h1>
+            <form method="POST" action="/register" class="form-group">
+                <div class="mb-3">
+                    <label for="username">Create A Username</label>
+                    <input type="text" placeholder="New Username" name="username" class="form-control">
+                    <small class="form-text text-muted">Try and create something memorable!</small>
+                </div>
+                <div class="mb-3">
+                    <label for="username">Enter Your Email</label>
+                    <input type="email" placeholder="example@example.com" name="userEmail" class="form-control">
+                    <small class="form-text text-muted">We'll never send you any spam, we promise.</small>
+                </div>
+                <div class="mb-3">
+                    <label for="username">Enter A Password</label>
+                    <input type="password" placeholder="password" name="pass1" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="username">Re-Enter The Same Password</label>
+                    <input type="password" placeholder="password" name="pass2" class="form-control">
+                    <small class="form-text text-muted">Make sure they match</small>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Register</button>
+            </form>
+        </div>
+    </main>
+  </body>
+</html>

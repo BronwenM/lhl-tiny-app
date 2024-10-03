@@ -123,13 +123,12 @@ app.post('/urls/:id/update', (req, res) => {
 
 //LOGIN OPERATION
 app.post('/login', (req, res) => {
-
     if (req.body.username) {
         res.cookie("username", req.body.username);
-        res.redirect('/urls');
     } else {
         console.warn("no username entered");
     }
+    res.redirect('/urls');
 });
 
 //LOGOUT OPERATION
@@ -141,6 +140,12 @@ app.post('/logout', (req, res) => {
     } else {
         console.log("Can't log out, we're not logged in!");
     }
+})
+
+//REGISTER
+app.get('/register', (req, res) => {
+    const templateVars = {username: req.cookies["username"]}
+    res.render('register', templateVars);
 })
 
 app.listen(PORT, () => {
