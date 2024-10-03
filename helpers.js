@@ -41,15 +41,34 @@ const getUserURLs = (database, uid) => {
     return userURLs;
 }
 
-/* const checkEmptyEmailPassword = (email, password) => {
-    if (!password && !email) {
-        return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email and password cannot be empty` });
-    } else if (!email || !password) {
-        if (!password) {
-            return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Password cannot be empty` });
+//TODO: Figure out a way to make this work
+
+const checkEmptyEmailPassword = (emailInput, passwordInput, callback) => {
+    let errorMsg = '';
+
+    if (!passwordInput && !emailInput) {
+        errorMsg = `Email and password cannot be empty`;
+        callback(errorMsg)
+    } else if (!emailInput || !passwordInput) {
+        if (!passwordInput) {
+            errorMsg = `Password cannot be empty`;
+            callback(errorMsg)
         }
-        return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email cannot be empty` });
+        errorMsg = `Email cannot be empty`;
+        callback(errorMsg)
+    }
+}
+
+/* const checkEmptyEmailPassword = (emailInput, passwordInput, renderPage, result) => {
+
+    if (!passwordInput && !emailInput) {
+        return result.status(400).render(renderPage, { user: '', email: emailInput, password: passwordInput, errorMsg: `Email and password cannot be empty` });
+    } else if (!emailInput || !passwordInput) {
+        if (!passwordInput) {
+            return result.status(400).render(renderPage, { user: '', email: emailInput, password: passwordInput, errorMsg: `Password cannot be empty` });
+        }
+        return result.status(400).render(renderPage, { user: '', email: emailInput, password: passwordInput, errorMsg: `Email cannot be empty` });
     }
 } */
 
-module.exports = {generateRandomString, getUserByEmail, getUserURLs}
+module.exports = {generateRandomString, getUserByEmail, getUserURLs, checkEmptyEmailPassword}

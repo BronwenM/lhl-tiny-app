@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 //imports from local files
-const {generateRandomString, getUserByEmail, getUserURLs} = require('./utils/index');
+const { generateRandomString, getUserByEmail, getUserURLs, checkEmptyEmailPassword} = require('./helpers');
 const SESSION_KEY = process.env.SESSION_KEY;
 const PORT = process.env.PORT;
 
@@ -19,10 +19,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
     name: 'session',
     keys: [SESSION_KEY],
-  
+
     // Cookie Options
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }))
+}))
 
 const urlDatabase = {
     b2xVn2: {
@@ -70,7 +70,7 @@ app.get("/urls", (req, res) => {
 
 //CREATE OPERATION
 app.post('/urls', (req, res) => {
-    if(req.session.user_id){
+    if (req.session.user_id) {
         const newID = generateRandomString();
         if (!urlDatabase[newID]) {
             urlDatabase[newID] = {
@@ -80,7 +80,7 @@ app.post('/urls', (req, res) => {
         } else {
             console.warn("This link has already been shortened!");
         }
-        
+
         res.redirect(`/urls/${newID}`);
     } else {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to create new short links' })
@@ -98,7 +98,7 @@ app.get('/u/:id', (req, res) => {
 
 //access the 'create urls' page
 app.get('/urls/new', (req, res) => {
-    if(req.session.user_id){
+    if (req.session.user_id) {
         const templateVars = { user: users[req.session.user_id] || '' }
         res.render('urls_new', templateVars);
     } else {
@@ -108,7 +108,7 @@ app.get('/urls/new', (req, res) => {
 
 //Get individual URLs by ID, this is not the same as accessing a short link, which redirects to the appropriate site
 app.get("/urls/:id", (req, res) => {
-    if(!req.session.user_id) {
+    if (!req.session.user_id) {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to edit url links' })
     }
 
@@ -120,16 +120,16 @@ app.get("/urls/:id", (req, res) => {
 
 //DELETE OPERATION
 app.post('/urls/:id/delete', (req, res) => {
-    if(!req.session.user_id) {
+    if (!req.session.user_id) {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to delete url links' })
     }
     const userURLs = getUserURLs(urlDatabase, req.session.user_id);
     const linkID = req.params.id;
 
-    if(Object.hasOwn(userURLs, linkID)) {
+    if (Object.hasOwn(userURLs, linkID)) {
         delete urlDatabase[linkID];
         console.log(urlDatabase);
-    
+
         res.redirect('/urls');
     } else {
         console.warn("you don't have access to that object");
@@ -138,7 +138,7 @@ app.post('/urls/:id/delete', (req, res) => {
 
 //UPDATE OPERATION
 app.post('/urls/:id/update', (req, res) => {
-    if(!req.session.user_id) {
+    if (!req.session.user_id) {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to delete url links' })
     }
 
@@ -182,7 +182,7 @@ app.post('/login', (req, res) => {
 
     if (user) { //email has to be present therefore correct
         // if (user.password === inputPassword) {
-        if(bcrypt.compareSync(inputPassword, user.password)) {
+        if (bcrypt.compareSync(inputPassword, user.password)) {
             req.session.user_id = user.id;
             res.redirect('/urls');
         } else { //password is incorrect
@@ -203,7 +203,7 @@ app.post('/logout', (req, res) => {
 //REGISTER OPERATION
 app.get('/register', (req, res) => {
     //DONE: Allows users to create a new account while still logged in. Fix this so it can only work/be accessed when logged out
-    if(!req.session.user_id){
+    if (!req.session.user_id) {
         const templateVars = { user: users[req.session.user_id] || '', email: '', errorMsg: '' }
         res.render('register', templateVars);
     } else {
@@ -242,6 +242,7 @@ app.post('/register', (req, res) => {
             // password
             password: bcrypt.hashSync(password, salt)
         };
+
         users[userID] = newUser;
 
         console.log(users);
