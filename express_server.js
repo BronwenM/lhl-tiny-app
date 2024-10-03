@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require('cookie-parser');
+const e = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -97,16 +98,19 @@ app.get("/urls", (req, res) => {
 
 //CREATE OPERATION
 app.post('/urls', (req, res) => {
-
-    const newID = generateRandomString();
-    if (!urlDatabase[newID]) {
-        urlDatabase[newID] = req.body.longURL;
+    if(req.cookies["user_id"]){
+        const newID = generateRandomString();
+        if (!urlDatabase[newID]) {
+            urlDatabase[newID] = req.body.longURL;
+        } else {
+            console.warn("This link has already been shortened!");
+        }
+        console.log(urlDatabase);
+        
+        res.redirect(`/urls/${newID}`);
     } else {
-        console.warn("This link has already been shortened!");
+        return res.send("<html><body><p>Only Authorized users can create new short links</p></body></html>\n")
     }
-    console.log(urlDatabase);
-
-    res.redirect(`/urls/${newID}`);
 });
 
 //redirect user to link associated with the id
@@ -114,14 +118,18 @@ app.get('/u/:id', (req, res) => {
     if (Object.hasOwnProperty(req.params.id)) {
         res.redirect(urlDatabase[req.params.id]);
     } else {
-        res.send('<h1>404 Page Not Found. Bad Link</h1>');
+        res.status(404).send('<h1>404 Page Not Found. Bad Link</h1>');
     }
 });
 
 //access the 'create urls' page
 app.get('/urls/new', (req, res) => {
-    const templateVars = { user: users[req.cookies["user_id"]] || '' }
-    res.render('urls_new', templateVars);
+    if(req.cookies["user_id"]){
+        const templateVars = { user: users[req.cookies["user_id"]] || '' }
+        res.render('urls_new', templateVars);
+    } else {
+        res.redirect('/login');
+    }
 });
 
 //Get individual URLs by ID, this is not the same as accessing a short link, which redirects to the appropriate site
