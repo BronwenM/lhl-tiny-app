@@ -167,11 +167,6 @@ app.get('/login', (req, res) => {
 
 
 app.post('/login', (req, res) => {
-    /* if (req.body.username) {
-        res.cookie("username", req.body.username);
-    } else {
-        console.warn("no username entered");
-    } */
     const inputEmail = req.body.email;
     const inputPassword = req.body.password;
     const user = getUserByEmail(inputEmail);
@@ -188,13 +183,13 @@ app.post('/login', (req, res) => {
     if (user) { //email has to be present therefore correct
         if (user.password === inputPassword) {
             res.cookie("user_id", user.id);
+            res.redirect('/urls');
         } else { //password is incorrect
-            return res.status(400).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: 'Password is incorrect' })
+            return res.status(403).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: 'Password is incorrect' })
         }
     } else { //user has no email associated
-        return res.status(400).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: `The email ${inputEmail} has no account attached` })
+        return res.status(403).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: `The email ${inputEmail} has no account attached` })
     }
-    res.redirect('/urls');
 });
 
 //LOGOUT OPERATION
@@ -245,7 +240,7 @@ app.post('/register', (req, res) => {
 
         console.log(users);
 
-        //log them in and set the cookie to username
+        //log them in and set the cookie to user with id UserID
         if (users[userID].id) {
             res.cookie("user_id", users[userID].id);
             res.redirect("/urls");
