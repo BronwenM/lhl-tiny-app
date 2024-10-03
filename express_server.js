@@ -39,6 +39,17 @@ const getUserByEmail = (userEmail) => {
     }
 }
 
+/* const checkEmptyEmailPassword = (email, password) => {
+    if (!password && !email) {
+        return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email and password cannot be empty` });
+    } else if (!email || !password) {
+        if (!password) {
+            return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Password cannot be empty` });
+        }
+        return res.status(400).render('register', { user: users[req.cookies["user_id"]] || '', email: email, errorMsg: `Email cannot be empty` });
+    }
+} */
+
 const urlDatabase = {
     b2xVn2: "http://www.lighthouselabs.ca",
     "9sm5xK": "http://www.google.com",
@@ -55,6 +66,11 @@ const users = {
         email: "user2@example.com",
         password: "dishwasher-funk",
     },
+    'sillyBillyTester': {
+        id: 'sillyBillyTester',
+        email: 'test@tester.com',
+        password: 'asdf'
+    }
 };
 
 //SERVER ACTIONS (GET, POST)
@@ -145,24 +161,47 @@ app.post('/urls/:id/update', (req, res) => {
 });
 
 //LOGIN OPERATION
+app.get('/login', (req, res) => {
+    res.render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: '' })
+})
+
+
 app.post('/login', (req, res) => {
-    if (req.body.username) {
+    /* if (req.body.username) {
         res.cookie("username", req.body.username);
     } else {
         console.warn("no username entered");
+    } */
+    const inputEmail = req.body.email;
+    const inputPassword = req.body.password;
+    const user = getUserByEmail(inputEmail);
+
+    if (!inputPassword && !inputEmail) {
+        return res.status(400).render('login', { user: '', email: inputEmail, errorMsg: `Email and password cannot be empty` });
+    } else if (!inputEmail || !inputPassword) {
+        if (!inputPassword) {
+            return res.status(400).render('login', { user: '', email: inputEmail, errorMsg: `Password cannot be empty` });
+        }
+        return res.status(400).render('login', { user: '', email: inputEmail, errorMsg: `Email cannot be empty` });
+    }
+
+    if (user) { //email has to be present therefore correct
+        if (user.password === inputPassword) {
+            res.cookie("user_id", user.id);
+        } else { //password is incorrect
+            return res.status(400).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: 'Password is incorrect' })
+        }
+    } else { //user has no email associated
+        return res.status(400).render('login', { user: users[req.cookies["user_id"]] || '', errorMsg: `The email ${inputEmail} has no account attached` })
     }
     res.redirect('/urls');
 });
 
 //LOGOUT OPERATION
 app.post('/logout', (req, res) => {
-    if (req.cookies["user_id"]) {
-        console.log("logged out", req.cookies['user_id']);
-        res.clearCookie("user_id");
-        res.redirect('/register');
-    } else {
-        console.log("Can't log out, we're not logged in!");
-    }
+    console.log("logged out", req.cookies['user_id']);
+    res.clearCookie("user_id");
+    res.redirect('/login');
 });
 
 //REGISTER OPERATION
@@ -173,6 +212,7 @@ app.get('/register', (req, res) => {
 });
 
 //create a new user and add it to the user object
+//TODO: Modularize the validations
 app.post('/register', (req, res) => {
     let userID = generateRandomString();
     const email = req.body.email;
