@@ -22,8 +22,8 @@
         </p>
       </div>
       <div class="card-footer text-muted" ></div>
-
-      <form method="POST" action="/urls/<%= id %>/update?_method=PUT" class="py-4 px-5 mx-5">
+    </div>
+      <form method="POST" action="/urls/<%= id %>/update?_method=PUT" class="py-4 px-5 mx-5 text-center">
         <h3 class="mb-3">Edit Destination Link</h3>
         <div class="input-group">
             <input type="text" id="newURLEdit" name="newURL" class="form-control" value="<%= longURL %>">
@@ -32,7 +32,20 @@
         <div class="form-text text-left text-muted" style="font-size: small; padding-left: 0.25rem;">Double-check that the link you are modifying works before updating the existing link</div>
       </form>
 
-    </div>
+      <h3 class="text-center">Let's have fun with stats!</h3>
+      <div style="width: 50%; margin: 0 auto;">
+        <p>This link has:</p>
+        <ul class="text-left">
+          <li>X lifetime visits</li>
+          <li>X unique visitors</li>
+        </ul>
+        <p>Here's a list of all the visits</p>
+        <div style="overflow-y: scroll; max-height: 500px;">
+          <span>visitor_id visited on DateTime</span>
+        </div>
+      </div>
+    
+
     <!-- Bootstrap JS -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
