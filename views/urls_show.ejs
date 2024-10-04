@@ -21,17 +21,36 @@
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
       </div>
-      <div class="card-footer text-muted" ></div>
+      <div class="card-footer text-muted"></div>
     </div>
-      <form method="POST" action="/urls/<%= id %>/update?_method=PUT" class="py-4 px-5 mx-5 text-center">
-        <h3 class="mb-3">Edit Destination Link</h3>
-        <div class="input-group">
-            <input type="text" id="newURLEdit" name="newURL" class="form-control" value="<%= longURL %>">
-            <button type="submit" class="btn btn-outline-info input-group-append">Update</button>
-        </div>
-        <div class="form-text text-left text-muted" style="font-size: small; padding-left: 0.25rem;">Double-check that the link you are modifying works before updating the existing link</div>
-      </form>
+    <form
+      method="POST"
+      action="/urls/<%= id %>/update?_method=PUT"
+      class="py-4 px-5 mx-5 text-center"
+    >
+      <h3 class="mb-3">Edit Destination Link</h3>
+      <div class="input-group">
+        <input
+          type="text"
+          id="newURLEdit"
+          name="newURL"
+          class="form-control"
+          value="<%= longURL %>"
+        />
+        <button type="submit" class="btn btn-outline-info input-group-append">
+          Update
+        </button>
+      </div>
+      <div
+        class="form-text text-left text-muted"
+        style="font-size: small; padding-left: 0.25rem"
+      >
+        Double-check that the link you are modifying works before updating the
+        existing link
+      </div>
+    </form>
 
+    <!--
       <h3 class="text-center">Let's have fun with stats!</h3>
       <div style="width: 50%; margin: 0 auto;">
         <p>This link has:</p>
@@ -44,7 +63,7 @@
           <span>visitor_id visited on DateTime</span>
         </div>
       </div>
-    
+    -->
 
     <!-- Bootstrap JS -->
     <script
