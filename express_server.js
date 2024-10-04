@@ -1,6 +1,7 @@
 //Set up necessary requirements
 const express = require("express");
 const cookieSession = require('cookie-session');
+const methodOverride = require('method-override');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -16,6 +17,7 @@ const salt = bcrypt.genSaltSync(10);
 //App setup
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 app.use(cookieSession({
     name: 'session',
     keys: [SESSION_KEY],
@@ -119,7 +121,7 @@ app.get("/urls/:id", (req, res) => {
 });
 
 //DELETE OPERATION
-app.post('/urls/:id/delete', (req, res) => {
+app.delete('/urls/:id/delete', (req, res) => {
     if (!req.session.user_id) {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to delete url links' })
     }
@@ -137,7 +139,7 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 //UPDATE OPERATION
-app.post('/urls/:id/update', (req, res) => {
+app.put('/urls/:id/update', (req, res) => {
     if (!req.session.user_id) {
         return res.status(403).render('login', { user: '', errorMsg: 'You need to be logged in to delete url links' })
     }

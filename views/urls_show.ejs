@@ -23,7 +23,7 @@
       </div>
       <div class="card-footer text-muted" ></div>
 
-      <form method="post" action="/urls/<%= id %>/update" class="py-4 px-5 mx-5">
+      <form method="POST" action="/urls/<%= id %>/update?_method=PUT" class="py-4 px-5 mx-5">
         <h3 class="mb-3">Edit Destination Link</h3>
         <div class="input-group">
             <input type="text" id="newURLEdit" name="newURL" class="form-control" value="<%= longURL %>">
