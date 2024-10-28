@@ -15,11 +15,12 @@
       crossorigin="anonymous"
     />
     <script>
-      function copyToClipboard(textToCopy) {
-        //if this was hosted, i'd use the id to copy the actual short link to the clipboard
-        navigator.clipboard.writeText(textToCopy);
+      function copyToClipboard(id) {
+        //user location.host to get the domain url (+ port)
+        const url = `${location.host}/u/${id}`
+        navigator.clipboard.writeText(url);
 
-        alert("Copied " + textToCopy + " to clipboard");
+        alert("Copied " + url + " to clipboard");
       }
     </script>
     <title>TinyApp</title>
@@ -49,7 +50,7 @@
                   <%= urls[id] %>
               </td>
               <td>
-                <button type="button" class="btn btn-outline-success btn-block" onclick="copyToClipboard('<%= urls[id] %>')">Copy Link</button>     
+                <button type="button" class="btn btn-outline-success btn-block" onclick="copyToClipboard('<%= id %>')">Copy Link</button>     
               </td>
               <td>
                 <form method="GET" action="/u/<%= id %>">
